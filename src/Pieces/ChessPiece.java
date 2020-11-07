@@ -68,7 +68,7 @@ public abstract class ChessPiece {
 			try {
 				testField = this.field.getBoard().getFields()[this.field.getCol() + colOffset][this.field.getRow() + rowOffset];
 			} catch (ArrayIndexOutOfBoundsException s) {
-				// This happens when the checked FieldLight is not on the board anymore
+				// This happens when the checked Field is not on the board anymore
 				break iterations;
 			}
 

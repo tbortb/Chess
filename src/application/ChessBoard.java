@@ -1,11 +1,13 @@
 package application;
 
 /*Ideas to make it faster:
- * -Only highlight fields when the player needs it (not during computer move)
+ * -In order to use the copyconstructor, dont use reflections (getConstructor().getInstance(), but use method of the object instead
+ * 		That made performance slightly worse (Snapshot: MinMaxCenterAndPiecesDeepth3FirstMoveCopyConstructorInvocationWithoutReflection.nps)
+ * -Dont use newly created Fields in writeToLog(), that is too expensive, becuase Field extends javafx. Use something selfmade instead
+ * 		It probably only needs col, row, and the piecezu
  * -Cache results of getLegalMoves
- * -Have specific order when evaluating moves, so that best moves come first, and alphabetapruning is applied more often
+ * -Have specific order when checking possible moves, so that best moves come first, and alphabetapruning is applied more often
  * -Check if it is possible and reasonable to communicate alpha and beta values across threads*/
-
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
@@ -15,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import Model.LogContainer;
 import Pieces.Bishop;
 import Pieces.ChessPiece;
 import Pieces.King;
@@ -26,20 +29,21 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
 public class ChessBoard {
-	
-	private final ArrayDeque<List<Field>> log = new ArrayDeque<>();
+
+	private final ArrayDeque<List<LogContainer>> log = new ArrayDeque<>();
 	private final Field[][] fields = new Field[8][8];
 	private final Set<ChessPiece> whitePieces = new HashSet<>();
 	private final Set<ChessPiece> blackPieces = new HashSet<>();
-	private BooleanProperty gameEndedProperty = new SimpleBooleanProperty(false); 
+	private BooleanProperty gameEndedProperty = new SimpleBooleanProperty(false);
 
 	private boolean whiteTurn = true;
 	private Field selectedField;
-	private List<Field> currentMoveLog = new ArrayList<>();
+	private List<LogContainer> currentMoveLog = new ArrayList<>();
 	private boolean isPlayerGame = false;
 
 	public ChessBoard() {
-		this.isPlayerGame = true; //Needs to be true in the constructor, so the field shows the pieces with ImageView
+		this.isPlayerGame = true; // Needs to be true in the constructor, so the field shows the pieces with
+									// ImageView
 		boolean fieldIsWhite;
 		boolean pieceIsWhite;
 		int col;
@@ -80,101 +84,101 @@ public class ChessBoard {
 				this.fields[col][row] = new Field(this, col, row, fieldIsWhite);
 			}
 		}
-		this.isPlayerGame = false; //Is only set to true when a field is clicked on
+		this.isPlayerGame = false; // Is only set to true when a field is clicked on
 	}
 
 //This constructor should be used as a copyConstructor 
 	public ChessBoard(Set<ChessPiece> whitePieces, Set<ChessPiece> blackPieces, boolean whiteTurn) {
-		//This constructor creates a copy of the input pieces and field and does NOT operate on the original references
+		// This constructor creates a copy of the input pieces and field and does NOT
+		// operate on the original references
 		this.whiteTurn = whiteTurn;
 		int col;
 		int row;
 		boolean fieldIsWhite;
-		
-		for (int i = 0; i < 64; i++) {			
+
+		for (int i = 0; i < 64; i++) {
 			fieldIsWhite = (i + i / 8) % 2 == 0;
 			col = i / 8;
 			row = i % 8;
 			this.fields[col][row] = new Field(this, col, row, fieldIsWhite);
 		}
-		
-		for (ChessPiece whitePiece : whitePieces) {	
+
+		for (ChessPiece whitePiece : whitePieces) {
 			this.addPiece(whitePiece);
 		}
-		
-		for (ChessPiece blackPiece : blackPieces) {	
+
+		for (ChessPiece blackPiece : blackPieces) {
 			this.addPiece(blackPiece);
 		}
 	}
-	
+
 	private void addPiece(ChessPiece piece) {
 		try {
-			ChessPiece newPiece = piece.getClass().getConstructor(piece.getClass()).newInstance(piece); 
-			this.fields[piece.getField().getCol()][piece.getField().getRow()].
-				setPiece(newPiece);
+			ChessPiece newPiece = piece.getClass().getConstructor(piece.getClass()).newInstance(piece);
+			this.fields[piece.getField().getCol()][piece.getField().getRow()].setPiece(newPiece);
 			this.addToPlayerPiecesSet(newPiece);
-		} catch (InvocationTargetException | InstantiationException | IllegalAccessException |
-				IllegalArgumentException | NoSuchMethodException | SecurityException e) {
+		} catch (InvocationTargetException | InstantiationException | IllegalAccessException | IllegalArgumentException
+				| NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public boolean isPlayerGame() {
 		return this.isPlayerGame;
 	}
-	
+
 	public void setPlayerGame(boolean isPlayerGame) {
 		this.isPlayerGame = isPlayerGame;
 	}
-	
+
 	public BooleanProperty endGameProperty() {
 		return this.gameEndedProperty;
 	}
-	
-	public Field[][] getFields(){
+
+	public Field[][] getFields() {
 		return this.fields;
 	}
-	
-	public Set<ChessPiece> getWhitePieces(){
+
+	public Set<ChessPiece> getWhitePieces() {
 		return this.whitePieces;
 	}
-	
-	public Set<ChessPiece> getBlackPieces(){
+
+	public Set<ChessPiece> getBlackPieces() {
 		return this.blackPieces;
 	}
-	
-	public Set<ChessPiece> getActivePlayerPieces(){
+
+	public Set<ChessPiece> getActivePlayerPieces() {
 		return this.whiteTurn ? this.getWhitePieces() : this.getBlackPieces();
 	}
-	
-	public Set<ChessPiece> getInactivePlayerPieces(){
+
+	public Set<ChessPiece> getInactivePlayerPieces() {
 		return this.whiteTurn ? this.getBlackPieces() : this.getWhitePieces();
 	}
 
-	public ArrayDeque<List<Field>> getLog(){
+	public ArrayDeque<List<LogContainer>> getLog() {
 		return this.log;
 	}
-	
+
 	public int getLogSize() {
 		return this.log.size();
 	}
-	
+
 	public Field getSelectedField() {
 		return this.selectedField;
 	}
 
 	public void selectField(Field field) {
 		this.selectedField = field;
-		if(this.isPlayerGame) {
+		if (this.isPlayerGame) {
 			field.highlightField();
-			this.highlightPossibleMoves();			
+			this.highlightPossibleMoves();
 		}
 	}
 
 	public void unselectField(Field newField) {
 		this.selectedField = null;
-		if(this.isPlayerGame) {
-			this.unHighlightAllFields();			
+		if (this.isPlayerGame) {
+			this.unHighlightAllFields();
 		}
 	}
 
@@ -191,15 +195,15 @@ public class ChessBoard {
 			field.highlightField();
 		}
 	}
-	
+
 	public void addToPlayerPiecesSet(ChessPiece piece) {
 		if (piece.isWhite()) {
 			this.whitePieces.add(piece);
 		} else {
-			this.blackPieces.add(piece);			
+			this.blackPieces.add(piece);
 		}
-		
-		//Debuggung
+
+		// Debuggung
 //		for(ChessPiece p : this.whitePieces) {
 //			if(p.getField() == null || p.getField().getPiece() == null || p.getField().getPiece() != p) {
 //				System.err.println("No Piece on Feld: " + p.getField());
@@ -213,86 +217,85 @@ public class ChessBoard {
 //			}
 //		}
 	}
-	
+
 	public void removeFromPlayerPiecesSet(ChessPiece piece) {
 		if (piece.isWhite()) {
-			if(!this.whitePieces.remove(piece)){
-				//In case the reference to remove is not present in the playsers set,
-				//remove the chesspiece that is of the same type and has the same location
+			if (!this.whitePieces.remove(piece)) {
+				// In case the reference to remove is not present in the playsers set,
+				// remove the chesspiece that is of the same type and has the same location
 //				this.whitePieces.removeAll(this.whitePieces.stream().filter(pieceInSet -> pieceInSet.getField().getRow() == piece.getField().getRow() &&
 //						pieceInSet.getField().getCol() == piece.getField().getCol() &&
 //						pieceInSet.getClass() == piece.getClass()).collect(Collectors.toList()));
 			}
 		} else {
-			if(!this.blackPieces.remove(piece)) {
-				//In case the reference to remove is not present in the playsers set,
-				//remove the chesspiece that is of the same type and has the same location
+			if (!this.blackPieces.remove(piece)) {
+				// In case the reference to remove is not present in the playsers set,
+				// remove the chesspiece that is of the same type and has the same location
 //				this.blackPieces.removeAll(this.blackPieces.stream().filter(pieceInSet -> pieceInSet.getField().getRow() == piece.getField().getRow() &&
 //						pieceInSet.getField().getCol() == piece.getField().getCol() &&
 //						pieceInSet.getClass() == piece.getClass()).collect(Collectors.toList()));
 			}
 		}
 	}
-	
+
 	public boolean isWhiteTurn() {
 		return this.whiteTurn;
 	}
-	
+
 	public void switchPlayer() {
 		this.whiteTurn = !this.whiteTurn;
 	}
-	
+
 	public void currentMoveToLog() {
 		this.log.addLast(this.currentMoveLog);
 		this.currentMoveLog = new ArrayList<>();
 	}
-	
+
 	public void writeCurrentMove(Field field){
 		try {
-			Field clone = new Field(field);
 			ChessPiece piece = field.getPiece();
-			if(piece != null) {				
-				clone.setPiece(piece.getClass().getConstructor(piece.getClass()).newInstance(piece));
-			}
-			this.currentMoveLog.add(clone);
+			LogContainer container =  new LogContainer(field.getCol(),
+					field.getRow(),
+					field.getPiece() == null ? null : piece.getClass().getConstructor(piece.getClass()).newInstance(piece));
+			this.currentMoveLog.add(container);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
     }
-	
+
 	public void setupPreviousBoardState() {
 		this.isPlayerGame = true;
 		this.returnToLastMove();
 		this.isPlayerGame = false;
 	}
-	
+
 	public void returnToLastMove() {
 //		if (this.selectedField != null) {
 //			this.selectedField.onClick();//Deselect
 //			System.err.println("Selected field automatically unselected");
 //		}
 //		System.out.println("returnToLastMove, Logsize: " + this.log.size());
-		if(this.log.size() == 0) {
+		if (this.log.size() == 0) {
 
 			System.err.println("Log is empty! You can not go further back");
-			
-			//Debugging
+
+			// Debugging
 			throw new RuntimeException("LogError");
 
 		}
-		for(Field restoreField : this.log.removeLast()) {
-			final Field currentField = this.fields[restoreField.getCol()][restoreField.getRow()];
-			//Update of the corresponding players set of ChessPieces
+		for (LogContainer container : this.log.removeLast()) {
+			final Field currentField = this.fields[container.getCol()][container.getRow()];
+			// Update of the corresponding players set of ChessPieces
 			if (currentField.getPiece() != null) {
 				this.removeFromPlayerPiecesSet(currentField.getPiece());
 			}
-			if (restoreField.getPiece() != null) {
-				this.addToPlayerPiecesSet(restoreField.getPiece());			
+			if (container.getPiece() != null) {
+				this.addToPlayerPiecesSet(container.getPiece());
 			}
 			
-			currentField.setPiece(restoreField.getPiece());
+			currentField.setPiece(container.getPiece());
 		}
-		
+
 		this.switchPlayer();
 	}
 }
