@@ -1,10 +1,7 @@
 package application;
 
 /*Ideas to make it faster:
- * -In order to use the copyconstructor, dont use reflections (getConstructor().getInstance(), but use method of the object instead
- * 		That made performance slightly worse (Snapshot: MinMaxCenterAndPiecesDeepth3FirstMoveCopyConstructorInvocationWithoutReflection.nps)
- * -Dont use newly created Fields in writeToLog(), that is too expensive, becuase Field extends javafx. Use something selfmade instead
- * 		It probably only needs col, row, and the piecezu
+ * - Try to implement Feldmann's Young Brothers Wait Concept https://www.chessprogramming.org/Parallel_Search
  * -Cache results of getLegalMoves
  * -Have specific order when checking possible moves, so that best moves come first, and alphabetapruning is applied more often
  * -Check if it is possible and reasonable to communicate alpha and beta values across threads*/

@@ -73,14 +73,17 @@ public class AlphaBetaPrune extends ChessEngine {
 				if(chessBoard.isWhiteTurn()) {
 					if (alpha < value) {
 						alpha = value;
+						if (alpha > beta) {
+							break tryFields;
+						}
 					}
 				}else {
 					if (beta > value) {
 						beta = value;
+						if (alpha > beta) {
+							break tryFields;
+						}
 					}
-				}
-				if (alpha > beta) {
-					break tryFields;
 				}
 			}
 		}

@@ -1,5 +1,9 @@
 package Engines;
 
+/**
+ * This is a test to see whether the constant check agains the globalalpha or beta increases or decreases perormance.
+ * It is possible that due to the volatile nature of globalAlpha and globalBeta, the threads wait for one another too often
+ */
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,15 +17,17 @@ import Evaluators.ChessBoardEvaluator;
 import application.ChessBoard;
 import application.Field;
 
-public class AlphaBetaPruneMultiThread extends ChessEngine {
+public class AlphaBetaPruneMultiThreadRootCom extends ChessEngine {
 	// alpha = minimum value that a maximizing player is guaranteed to get
+	private volatile int globalAlpha;
 	// beta = maximum value that a minimizing player is guaranteed to get
+	private volatile int globalBeta;
 
-	public AlphaBetaPruneMultiThread(ChessBoardEvaluator evaluator) {
+	public AlphaBetaPruneMultiThreadRootCom(ChessBoardEvaluator evaluator) {
 		super(evaluator);
 	}
 
-	public AlphaBetaPruneMultiThread(ChessBoardEvaluator whiteEvaluator, ChessBoardEvaluator blackEvaluator) {
+	public AlphaBetaPruneMultiThreadRootCom(ChessBoardEvaluator whiteEvaluator, ChessBoardEvaluator blackEvaluator) {
 		super(whiteEvaluator, blackEvaluator);
 	}
 
@@ -29,59 +35,45 @@ public class AlphaBetaPruneMultiThread extends ChessEngine {
 	public ChessMove computerMove(ChessBoard chessBoard, int depth) {
 		this.evaluateCalls.set(0);
 		this.useWhiteEval = chessBoard.isWhiteTurn();
+		this.globalAlpha = Integer.MIN_VALUE;
+		this.globalBeta = Integer.MAX_VALUE;
 
 		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		List<Future<ChessMove>> possibleMoveFutures = new ArrayList<>();
 
-		Field[] fromFields = chessBoard.getActivePlayerPieces().stream().map(piece -> piece.getField()).toArray(Field[]::new);
+		Field[] fromFields = chessBoard.getActivePlayerPieces().stream().map(piece -> piece.getField())
+				.toArray(Field[]::new);
 
 		for (Field fromField : fromFields) {
 			ChessBoard copiedBoard = new ChessBoard(chessBoard.getWhitePieces(), chessBoard.getBlackPieces(),
 					chessBoard.isWhiteTurn());
 			Field[] fromFieldOnNewBoard = { copiedBoard.getFields()[fromField.getCol()][fromField.getRow()] };
-			
+
 			possibleMoveFutures.add(executor.submit(() -> {
-				ChessMove bestMove = this.alphaBeta(copiedBoard, depth, Integer.MIN_VALUE, Integer.MAX_VALUE,
-						fromFieldOnNewBoard);
+				ChessMove bestMove = this.alphaBeta(copiedBoard, depth, this.globalAlpha, this.globalBeta,
+						fromFieldOnNewBoard, chessBoard.isWhiteTurn());
 				if (bestMove != null) {
+
+					if (chessBoard.isWhiteTurn()) {
+						if (bestMove.getValue() > this.globalAlpha) {
+							this.globalAlpha = bestMove.getValue();
+						}
+					} else {
+						if (bestMove.getValue() < this.globalBeta) {
+							this.globalBeta = bestMove.getValue();
+						}
+					}
+
 					return new ChessMove(fromField,
 							chessBoard.getFields()[bestMove.getTo().getCol()][bestMove.getTo().getRow()],
-							bestMove.getValue());					
-				}else {
+							bestMove.getValue());
+				} else {
 					return null;
 				}
 			}));
 		}
 
-		//Without futures, sequentially in a loop, no multithreading
-//		List<ChessMove> possibleMoves = new ArrayList<>();
-//		for (Field fromField : fromFields) {
-//			ChessBoard copiedBoard = new ChessBoard(chessBoard.getWhitePieces(), chessBoard.getBlackPieces(),
-//					chessBoard.isWhiteTurn());
-//			Field[] fromFieldOnNewBoard = { copiedBoard.getFields()[fromField.getCol()][fromField.getRow()] };
-//			ChessMove bestMove = this.alphaBeta(copiedBoard, depth, Integer.MIN_VALUE, Integer.MAX_VALUE,
-//					fromFieldOnNewBoard);
-//			if (bestMove != null) {
-//				possibleMoves.add(new ChessMove(fromField,
-//						chessBoard.getFields()[bestMove.getTo().getCol()][bestMove.getTo().getRow()],
-//						bestMove.getValue()));
-//			}
-//		}
-
-		//With Futures, but in a loop, that fills possibleMoves
-//		List<ChessMove> possibleMoves = new ArrayList<>();
-//		for (Future<ChessMove> futureMove : possibleMoveFutures) {
-//			try {
-//				ChessMove newMove = futureMove.get();
-//				if (newMove != null) {
-//					possibleMoves.add(newMove);					
-//				}
-//			} catch (InterruptedException | ExecutionException e) {
-//				e.printStackTrace();
-//			}
-//		}
-		
-		//With futures in a stream
+		// With futures in a stream
 		List<ChessMove> possibleMoves = possibleMoveFutures.stream().map(futureMove -> {
 			try {
 				return futureMove.get();
@@ -99,15 +91,17 @@ public class AlphaBetaPruneMultiThread extends ChessEngine {
 				: chessBoard.isWhiteTurn() ? possibleMoves.get(possibleMoves.size() - 1) : possibleMoves.get(0);
 	}
 
-	private ChessMove alphaBeta(ChessBoard chessBoard, int depth, int alpha, int beta) {
+	private ChessMove alphaBeta(ChessBoard chessBoard, int depth, int alpha, int beta,
+			final boolean globalPlayerIsMaximizing) {
 
 		Field[] fromFields = chessBoard.getActivePlayerPieces().stream().map(piece -> piece.getField())
 				.toArray(Field[]::new);
 
-		return this.alphaBeta(chessBoard, depth, alpha, beta, fromFields);
+		return this.alphaBeta(chessBoard, depth, alpha, beta, fromFields, globalPlayerIsMaximizing);
 	}
 
-	private ChessMove alphaBeta(ChessBoard chessBoard, int depth, int alpha, int beta, Field[] fromFields) {
+	private ChessMove alphaBeta(ChessBoard chessBoard, int depth, int alpha, int beta, Field[] fromFields,
+			final boolean globalPlayerIsMaximizing) {
 
 		List<ChessMove> possibleMoves = new ArrayList<ChessMove>();
 
@@ -123,7 +117,7 @@ public class AlphaBetaPruneMultiThread extends ChessEngine {
 
 				fromField.onClick(); // mouse click on chess piece's field
 				toField.onClick(); // Move chosen ChessPiece to a field
-				
+
 //				System.out.println("LogSize: " + chessBoard.getLogSize() + " ,evalCalls: " + this.getEvaluatorCalls());
 
 				int value; // Value of newly discovered move
@@ -131,27 +125,14 @@ public class AlphaBetaPruneMultiThread extends ChessEngine {
 				if (depth == 0) {
 					possibleMoves.add(new ChessMove(fromField, toField, value = this.evaluatePosition(chessBoard)));
 				} else {
-					possibleMoves.add(new ChessMove(fromField, toField,
-							value = this.alphaBeta(chessBoard, depth - 1, alpha, beta).getValue()));
+					possibleMoves.add(new ChessMove(fromField, toField, value = this
+							.alphaBeta(chessBoard, depth - 1, alpha, beta, globalPlayerIsMaximizing).getValue()));
 				}
 
 				chessBoard.returnToLastMove();
-
-				// Do the pruning (with stop criterion alpha > beta)
-				if (chessBoard.isWhiteTurn()) {
-					if (alpha < value) {
-						alpha = value;
-						if (alpha > beta) {
-							break tryFields;
-						}
-					}
-				} else {
-					if (beta > value) {
-						beta = value;
-						if (alpha > beta) {
-							break tryFields;
-						}
-					}
+				
+				if (canBePruned(value, alpha, beta, chessBoard.isWhiteTurn(), globalPlayerIsMaximizing)) {
+					break tryFields;
 				}
 			}
 		}
@@ -159,6 +140,28 @@ public class AlphaBetaPruneMultiThread extends ChessEngine {
 //		System.gc();
 		return possibleMoves.size() == 0 ? null
 				: chessBoard.isWhiteTurn() ? possibleMoves.get(possibleMoves.size() - 1) : possibleMoves.get(0);
+	}
+	
+	private boolean canBePruned(final int value, int alpha, int beta, boolean isWhiteTurn, final boolean globalPlayerIsMaximizing) {
+		// Do the pruning (with stop criterion alpha > beta)
+		if (isWhiteTurn) {
+			if (alpha < value) {
+				alpha = value;
+			}
+		} else {
+			if (beta > value) {
+				beta = value;
+			}
+		}
+		
+		//Check if globalAlpha or globalBeta have been improved by another thread
+		if(globalPlayerIsMaximizing && alpha < this.globalAlpha) {
+			alpha = this.globalAlpha;
+		}else if (!globalPlayerIsMaximizing && beta > this.globalBeta){
+			beta = this.globalBeta;
+		}
+		
+		return alpha > beta;
 	}
 
 }
