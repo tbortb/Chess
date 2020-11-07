@@ -12,12 +12,10 @@ public class Bishop extends ChessPiece {
 	
 	public Bishop(boolean isWhite) {
 		super(isWhite, 3);
-//		this.imageURL = isWhite ? "./ChessPieces/WhiteBishop.png" : "./ChessPieces/BlackBishop.png";
 	}
 	
 	public Bishop(Bishop other) {//CopyConstructor
 		super(other);
-//		this.imageURL = this.isWhite ? "./ChessPieces/WhiteBishop.png" : "./ChessPieces/BlackBishop.png";
 	}
 	
 	@Override

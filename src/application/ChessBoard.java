@@ -1,7 +1,10 @@
 package application;
 
-/*
- * Performanceboost durch log nicht als obslist*/
+/*Ideas to make it faster:
+ * -Only highlight fields when the player needs it (not during computer move)
+ * -Cache results of getLegalMoves
+ * -Have specific order when evaluating moves, so that best moves come first, and alphabetapruning is applied more often
+ * -Check if it is possible and reasonable to communicate alpha and beta values across threads*/
 
 
 import java.lang.reflect.InvocationTargetException;
@@ -33,8 +36,10 @@ public class ChessBoard {
 	private boolean whiteTurn = true;
 	private Field selectedField;
 	private List<Field> currentMoveLog = new ArrayList<>();
+	private boolean isPlayerGame = false;
 
 	public ChessBoard() {
+		this.isPlayerGame = true; //Needs to be true in the constructor, so the field shows the pieces with ImageView
 		boolean fieldIsWhite;
 		boolean pieceIsWhite;
 		int col;
@@ -75,6 +80,7 @@ public class ChessBoard {
 				this.fields[col][row] = new Field(this, col, row, fieldIsWhite);
 			}
 		}
+		this.isPlayerGame = false; //Is only set to true when a field is clicked on
 	}
 
 //This constructor should be used as a copyConstructor 
@@ -111,6 +117,14 @@ public class ChessBoard {
 				IllegalArgumentException | NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public boolean isPlayerGame() {
+		return this.isPlayerGame;
+	}
+	
+	public void setPlayerGame(boolean isPlayerGame) {
+		this.isPlayerGame = isPlayerGame;
 	}
 	
 	public BooleanProperty endGameProperty() {
@@ -151,13 +165,17 @@ public class ChessBoard {
 
 	public void selectField(Field field) {
 		this.selectedField = field;
-		field.highlightField();
-		this.highlightPossibleMoves();
+		if(this.isPlayerGame) {
+			field.highlightField();
+			this.highlightPossibleMoves();			
+		}
 	}
 
 	public void unselectField(Field newField) {
 		this.selectedField = null;
-		this.unHighlightAllFields();
+		if(this.isPlayerGame) {
+			this.unHighlightAllFields();			
+		}
 	}
 
 	private void unHighlightAllFields() {
@@ -241,6 +259,12 @@ public class ChessBoard {
 			e.printStackTrace();
 		}
     }
+	
+	public void setupPreviousBoardState() {
+		this.isPlayerGame = true;
+		this.returnToLastMove();
+		this.isPlayerGame = false;
+	}
 	
 	public void returnToLastMove() {
 //		if (this.selectedField != null) {

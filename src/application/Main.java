@@ -48,7 +48,7 @@ public class Main extends Application {
 		Button computerGameBtn = new Button("Computer Game");
 		Button computerMoveBtn = new Button("Computer Move");
 		Button backButton = new Button("Ctrl + Z");
-		backButton.setOnAction(event -> chessBoard.returnToLastMove());
+		backButton.setOnAction(event -> chessBoard.setupPreviousBoardState());
 
 		ChessEngine engine = new MiniMaxEngine(new PiecesAndCenter(), new MaxPossibleMoves());
 		computerGameBtn.setOnAction(e -> {
@@ -61,8 +61,8 @@ public class Main extends Application {
 					System.out.println("Log: " + chessBoard.getLog());
 					throw new RuntimeException("Something went wrong");
 				}
-					computerMove.getFrom().onClick();
-					computerMove.getTo().onClick();
+					computerMove.getFrom().fire();
+					computerMove.getTo().fire();
 					if (chessBoard.getActivePlayerPieces().stream()
 							.anyMatch(p -> p instanceof King && chessBoard.getLogSize() < 100)) {
 						Platform.runLater(() -> computerGameBtn.fire());
@@ -75,8 +75,8 @@ public class Main extends Application {
 		computerMoveBtn.setOnAction(e -> {
 			final long startTime = System.currentTimeMillis();
 			ChessMove computerMove = engine.computerMove(chessBoard, searchDeepth);
-			computerMove.getFrom().onClick();
-			computerMove.getTo().onClick();
+			computerMove.getFrom().fire();
+			computerMove.getTo().fire();
 			System.out.println(computerMove + " took " + String.valueOf(System.currentTimeMillis() - startTime)
 					+ " milisecondss (" + engine.getEvaluatorCalls() + " evaluations)");
 		});

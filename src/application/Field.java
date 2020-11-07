@@ -6,6 +6,7 @@ import Pieces.Pawn;
 import Pieces.Queen;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class Field extends Button {
@@ -20,7 +21,6 @@ public class Field extends Button {
 	private final ChessBoard board;
 
 	private ChessPiece piece;
-	private boolean isHighlighted = false;
 
 	public Field(Field otherField) { // CopyConstructor
 		this(otherField.getBoard(), otherField.getCol(), otherField.getRow(), otherField.isWhite());
@@ -53,7 +53,11 @@ public class Field extends Button {
 		imageView.setFitWidth(SQUARE_LENGTH / 1.5);
 		this.setGraphic(imageView);
 
-		this.setOnAction(event -> this.onClick());
+		this.setOnAction(event -> {
+			this.board.setPlayerGame(true);
+			this.onClick();
+			this.board.setPlayerGame(false);
+		});
 	}
 
 	public void onClick() {
@@ -66,9 +70,7 @@ public class Field extends Button {
 			}
 		} else if (this.board.getSelectedField() == this) {
 			this.board.unselectField(this);
-		} else if (this.isHighlighted){
-			//use isHighlighted instead of recomputing the legal moves
-			//this.board.getSelectedField().getPiece().isLegalMove(this)) {
+		} else if (this.board.getSelectedField().getPiece().isLegalMove(this)) {
 			this.board.writeCurrentMove(this.board.getSelectedField());
 			this.board.writeCurrentMove(this);
 			this.setPiece(this.board.getSelectedField().getPiece());
@@ -86,7 +88,8 @@ public class Field extends Button {
 
 			this.board.switchPlayer();
 		} else {
-			System.err.println("Piece can not move from: " + this.getBoard().getSelectedField().toString() + " to " + this.toString());
+			System.err.println("Piece can not move from: " + this.getBoard().getSelectedField().toString() + " to "
+					+ this.toString());
 //			throw new RuntimeException("Piece can not move from: " + this.getBoard().getSelectedField().toString() + " to " + this.toString());
 		}
 	}
@@ -123,16 +126,17 @@ public class Field extends Button {
 				}
 				return;
 			}
-			if (pawn.getEnPassantField() == this && pawn.getEnPassantMove() == this.board.getLogSize() - 1) {// It is en passant
+			if (pawn.getEnPassantField() == this && pawn.getEnPassantMove() == this.board.getLogSize() - 1) {// It is en
+																												// passant
 				int killPawnCol = this.getCol();
 				int killPawnRow = this.board.isWhiteTurn() ? 3 : 4;
 
 				Field killPawnField = this.board.getFields()[killPawnCol][killPawnRow];
 				if (!(killPawnField.getPiece() instanceof Pawn)) {
-					
-					//Debugging
+
+					// Debugging
 					System.err.println("Tried enpassant, but there wars no pawn to hit");
-					
+
 					return;// There must be a pawn to kill with enpassant
 				}
 				this.board.writeCurrentMove(killPawnField);
@@ -184,25 +188,30 @@ public class Field extends Button {
 		}
 		this.piece = piece;
 		if (piece == null) {
-			((ImageView) this.graphicProperty().getValue()).setImage(null);
+			this.setImage(null);
 		} else {
 			this.piece.setField(this);
-			((ImageView) this.graphicProperty().getValue()).setImage(this.piece.getImage());
+			this.setImage(this.piece.getImage());
+		}
+	}
+
+	private void setImage(Image newImage) {
+		if (this.board.isPlayerGame()) {
+			((ImageView) this.graphicProperty().getValue()).setImage(newImage);
 		}
 	}
 
 	public void highlightField() {
 		this.setStyle(HIGHLIGHT_COLOR);
-		this.isHighlighted = true;
 	}
 
 	public void unHighlightField() {
 		this.setStyle(this.isWhite ? WHITE_COLOR : BLACK_COLOR);
-		this.isHighlighted = false;
 	}
 
 	@Override
 	public String toString() {
-		return "Field [col=" + this.col + ", row=" + this.row + ", piece=" + (this.piece == null ? "null" : this.piece.getClass().getSimpleName() + ", isWhite=" + this.piece.isWhite()) + "]";
+		return "Field [col=" + this.col + ", row=" + this.row + ", piece=" + (this.piece == null ? "null"
+				: this.piece.getClass().getSimpleName() + ", isWhite=" + this.piece.isWhite()) + "]";
 	}
 }

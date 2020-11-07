@@ -20,7 +20,8 @@ public class MiniMaxEngine extends ChessEngine{
 
 	@Override
 	public ChessMove computerMove(ChessBoard chessBoard, int depth) {
-		this.evaluateCalls.set(0);;
+		this.evaluateCalls.set(0);
+		this.useWhiteEval= chessBoard.isWhiteTurn(); 
 		return this.computerMove(chessBoard, depth, depth);
 	}
 	
