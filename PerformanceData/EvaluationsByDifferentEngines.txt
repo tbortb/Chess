@@ -1,0 +1,23 @@
+MiniMax komplet erster zug depth 5:
+ChessMove [fromField=1-7, toField=2-5, value=-5] took 1018943 milisecondss (120735548 evaluations)
+Das selbe mit alphabeta prune:
+ChessMove [fromField=1-7, toField=2-5, value=-5] took 15638 milisecondss (1693870 evaluations)
+Nochmal mit alphabetaprune und multithreading
+ChessMove [fromField=1-7, toField=2-5, value=-5] took 21372 milisecondss (3885310 evaluations)
+
+
+
+AlphaBeta erster zug depth 7:
+ChessMove [fromField=3-6, toField=3-5, value=-8] took 2000024 milisecondss (182093600 evaluations)
+Das selbe mit multithreading:
+ChessMove [fromField=3-6, toField=3-5, value=-8] took 1830701 milisecondss (355515079 evaluations)
+alternativen: ChessMove [fromField=1-6, toField=1-5, value=-8], ChessMove [fromField=4-6, toField=4-5, value=-8], ChessMove [fromField=3-6, toField=3-5, value=-8]]
+Das selbe mit AlphaBetaPruneMultiThreadRootCom:
+ChessMove [fromField=3-6, toField=3-5, value=-8] took 1439019 milisecondss (277714911 evaluations)
+alternativen: ChessMove [fromField=4-6, toField=4-5, value=-8], ChessMove [fromField=1-6, toField=1-5, value=-8], ChessMove [fromField=3-6, toField=3-5, value=-8]
+Das selbe, aber nun wird nach jeder überprüfung der globale alpha/beta Wert überprüft:
+ChessMove [fromField=4-6, toField=4-5, value=-8] took 976995 milisecondss (180852801 evaluations)
+alternativen: ChessMove [fromField=1-6, toField=1-5, value=-8], ChessMove [fromField=3-6, toField=3-5, value=-8], ChessMove [fromField=4-6, toField=4-5, value=-8]
+
+So. wie es momentan aussieht, ist die qualität der alphabeta parallel Engines gleichbleibend, aber die letzte, bei der immer auch das globale alpha bzw beta
+überprüft wird ist die schnellste.
