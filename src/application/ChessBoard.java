@@ -3,8 +3,7 @@ package application;
 /*Ideas to make it faster:
  * - Try to implement Feldmann's Young Brothers Wait Concept https://www.chessprogramming.org/Parallel_Search
  * -Cache results of getLegalMoves
- * -Have specific order when checking possible moves, so that best moves come first, and alphabetapruning is applied more often
- * -Check if it is possible and reasonable to communicate alpha and beta values across threads*/
+ * -Have specific order when checking possible moves, so that best moves come first, and alphabetapruning is applied more often*/
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;

@@ -53,7 +53,8 @@ public class AlphaBetaPruneMultiThreadRootCom extends ChessEngine {
 				ChessMove bestMove = this.alphaBeta(copiedBoard, depth, this.globalAlpha, this.globalBeta,
 						fromFieldOnNewBoard, chessBoard.isWhiteTurn());
 				if (bestMove != null) {
-
+					
+					//set global alpha or beta
 					if (chessBoard.isWhiteTurn()) {
 						if (bestMove.getValue() > this.globalAlpha) {
 							this.globalAlpha = bestMove.getValue();
@@ -92,7 +93,7 @@ public class AlphaBetaPruneMultiThreadRootCom extends ChessEngine {
 	}
 
 	private ChessMove alphaBeta(ChessBoard chessBoard, int depth, int alpha, int beta,
-			final boolean globalPlayerIsMaximizing) {
+			boolean globalPlayerIsMaximizing) {
 
 		Field[] fromFields = chessBoard.getActivePlayerPieces().stream().map(piece -> piece.getField())
 				.toArray(Field[]::new);
@@ -101,7 +102,7 @@ public class AlphaBetaPruneMultiThreadRootCom extends ChessEngine {
 	}
 
 	private ChessMove alphaBeta(ChessBoard chessBoard, int depth, int alpha, int beta, Field[] fromFields,
-			final boolean globalPlayerIsMaximizing) {
+			boolean globalPlayerIsMaximizing) {
 
 		List<ChessMove> possibleMoves = new ArrayList<ChessMove>();
 
@@ -130,38 +131,33 @@ public class AlphaBetaPruneMultiThreadRootCom extends ChessEngine {
 				}
 
 				chessBoard.returnToLastMove();
-				
-				if (canBePruned(value, alpha, beta, chessBoard.isWhiteTurn(), globalPlayerIsMaximizing)) {
-					break tryFields;
+
+				// Do the pruning (with stop criterion alpha > beta)
+				if (chessBoard.isWhiteTurn()) {
+					if (alpha < value) {
+						alpha = value;
+					}
+				} else {
+					if (beta > value) {
+						beta = value;
+					}
 				}
+
+				// Check if globalAlpha or globalBeta have been improved by another thread
+				if (globalPlayerIsMaximizing && alpha < this.globalAlpha) {
+					alpha = this.globalAlpha;
+				} else if (!globalPlayerIsMaximizing && beta > this.globalBeta) {
+					beta = this.globalBeta;
+				}
+
+				if (alpha > beta) {
+					break tryFields;
+				}				
 			}
 		}
 		Collections.sort(possibleMoves);
-//		System.gc();
+		
 		return possibleMoves.size() == 0 ? null
 				: chessBoard.isWhiteTurn() ? possibleMoves.get(possibleMoves.size() - 1) : possibleMoves.get(0);
 	}
-	
-	private boolean canBePruned(final int value, int alpha, int beta, boolean isWhiteTurn, final boolean globalPlayerIsMaximizing) {
-		// Do the pruning (with stop criterion alpha > beta)
-		if (isWhiteTurn) {
-			if (alpha < value) {
-				alpha = value;
-			}
-		} else {
-			if (beta > value) {
-				beta = value;
-			}
-		}
-		
-		//Check if globalAlpha or globalBeta have been improved by another thread
-		if(globalPlayerIsMaximizing && alpha < this.globalAlpha) {
-			alpha = this.globalAlpha;
-		}else if (!globalPlayerIsMaximizing && beta > this.globalBeta){
-			beta = this.globalBeta;
-		}
-		
-		return alpha > beta;
-	}
-
 }

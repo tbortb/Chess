@@ -188,17 +188,19 @@ public class Field extends Button {
 		}
 		this.piece = piece;
 		if (piece == null) {
-			this.setImage(null);
+			if (this.board.isPlayerGame()) {
+				this.setImage(null);
+			}
 		} else {
 			this.piece.setField(this);
-			this.setImage(this.piece.getImage());
+			if (this.board.isPlayerGame()) {
+				this.setImage(this.piece.getImage());
+			}
 		}
 	}
 
 	private void setImage(Image newImage) {
-		if (this.board.isPlayerGame()) {
-			((ImageView) this.graphicProperty().getValue()).setImage(newImage);
-		}
+		((ImageView) this.graphicProperty().getValue()).setImage(newImage);
 	}
 
 	public void highlightField() {
