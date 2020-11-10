@@ -10,8 +10,8 @@ public class King extends ChessPiece {
 	private static Image whiteImg = new Image(King.class.getResourceAsStream("../res/ChessPieces/WhiteKing.png"));
 	private static Image blackImg = new Image(King.class.getResourceAsStream("../res/ChessPieces/BlackKing.png"));
 	
-	public King(boolean isWhite) {
-		super(isWhite, 100);
+	public King(boolean isWhite, Integer id) {
+		super(isWhite, 100, id);
 	}
 	
 	public King(King other) {//CopyConstructor
@@ -25,7 +25,7 @@ public class King extends ChessPiece {
 	}
 
 	@Override
-	public Set<Field> getLegalMoves() {
+	public Set<Field> calcLegalMoves() {
 		Set<Field> legalMoves = this.checkLinearMoves(1, 1, 1);
 		legalMoves.addAll(this.checkLinearMoves(1, -1, 1));
 		legalMoves.addAll(this.checkLinearMoves(-1, 1, 1));

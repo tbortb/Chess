@@ -36,7 +36,7 @@ public class PiecesAndCenter implements ChessBoardEvaluator{
 			//Points for controlling the center only for knight, bishop, pawn and queen
 			if (piece instanceof Pawn || piece instanceof Knight || piece instanceof Bishop || piece instanceof Queen ||
 					piece instanceof Rook) {
-				for (Field move : piece.getLegalMoves()) {
+				for (Field move : piece.calcLegalMoves()) {
 					if(move.getCol() == 3 && move.getRow() == 3) {
 						center33++;
 					}
@@ -75,7 +75,7 @@ public class PiecesAndCenter implements ChessBoardEvaluator{
 			//Points for controlling the center
 			if (piece instanceof Pawn || piece instanceof Knight || piece instanceof Bishop || piece instanceof Queen ||
 					piece instanceof Rook) {
-				for (Field move : piece.getLegalMoves()) {
+				for (Field move : piece.calcLegalMoves()) {
 					if(move.getCol() == 3 && move.getRow() == 3) {
 						center33--;
 					}

@@ -9,8 +9,8 @@ public class Rook extends ChessPiece {
 	private static Image whiteImg = new Image(Rook.class.getResourceAsStream("../res/ChessPieces/WhiteRook.png"));
 	private static Image blackImg = new Image(Rook.class.getResourceAsStream("../res/ChessPieces/BlackRook.png"));
 	
-	public Rook(boolean isWhite) {
-		super(isWhite, 5);
+	public Rook(boolean isWhite, Integer id) {
+		super(isWhite, 5, id);
 	}
 	
 	public Rook(Rook other) {//CopyConstructor
@@ -23,7 +23,7 @@ public class Rook extends ChessPiece {
 	}
 
 	@Override
-	public Set<Field> getLegalMoves() {
+	public Set<Field> calcLegalMoves() {
 		Set<Field> legalMoves = this.checkLinearMoves(1, 0);
 		legalMoves.addAll(this.checkLinearMoves(-1, 0));
 		legalMoves.addAll(this.checkLinearMoves(0, 1));

@@ -7,14 +7,17 @@ import application.Field;
 import javafx.scene.image.Image;
 
 public abstract class ChessPiece {
+	private final Integer id;
 	protected final boolean isWhite;
 	private final int value;
 	protected boolean hasMoved = false;
 	protected Field field;
+	
 
-	public ChessPiece(boolean isWhite, int value) {
+	public ChessPiece(boolean isWhite, int value, Integer id) {
 		this.isWhite = isWhite;
 		this.value = value;
+		this.id = id;
 	}
 	
 	public ChessPiece(ChessPiece otherPiece) {//CopyConstructor
@@ -22,12 +25,30 @@ public abstract class ChessPiece {
 		this.value = otherPiece.getValue();
 		this.hasMoved = otherPiece.hasMoved();
 		this.field = otherPiece.getField();
+		this.id = otherPiece.getId();
 	}
 	
-	public abstract Set<Field> getLegalMoves();	
+	public abstract Set<Field> calcLegalMoves();	
+
+	public Set<Field> getLegalMoves(){
+		Set<Field> legalMoves;
+		if((legalMoves = this.field.getBoard().getLegalMoveLog(this.id)) != null) {
+			return legalMoves;
+		}else {
+			legalMoves = this.calcLegalMoves();
+			//Cache LegalMoves
+			this.field.getBoard().addLegalMove(this.id, legalMoves);
+			return legalMoves;
+		}
+//		return legalMoves;
+	}
 
 	public boolean isLegalMove(Field destinationFiled) {
 		return this.getLegalMoves().contains(destinationFiled);		
+	}
+	
+	public Integer getId() {
+		return this.id;
 	}
 	
 	public int getValue() {

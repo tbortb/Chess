@@ -13,8 +13,8 @@ public class Pawn extends ChessPiece {
 	private int enPassantMove = -3;
 	private Field enPassantField;
 
-	public Pawn(boolean isWhite) {
-		super(isWhite, 1);
+	public Pawn(boolean isWhite, Integer id) {
+		super(isWhite, 1, id);
 	}
 	
 	public Pawn(Pawn other) {//CopyConstructor
@@ -29,7 +29,7 @@ public class Pawn extends ChessPiece {
 	}
 
 	@Override
-	public Set<Field> getLegalMoves() {
+	public Set<Field> calcLegalMoves() {
 		Set<Field> legalMoves = new HashSet<>();
 		final int increase = this.isWhite ? -1 : 1;
 		final int col = this.field.getCol();

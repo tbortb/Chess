@@ -8,6 +8,7 @@ import Engines.ChessMove;
 import Engines.MiniMaxEngine;
 import Evaluators.MaxPossibleMoves;
 import Evaluators.PiecesAndCenter;
+import Pieces.ChessPiece;
 import Pieces.King;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -21,7 +22,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-	private static final int searchDeepth = 5;
+	private static final int searchDeepth = 3;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -53,7 +54,7 @@ public class Main extends Application {
 		Button backButton = new Button("Ctrl + Z");
 		backButton.setOnAction(event -> chessBoard.setupPreviousBoardState());
 
-		ChessEngine engine = new AlphaBetaPruneMultiThreadRootCom(new PiecesAndCenter(), new MaxPossibleMoves());
+		ChessEngine engine = new MiniMaxEngine(new PiecesAndCenter(), new MaxPossibleMoves());
 		computerGameBtn.setOnAction(e -> {
 				final long startTime = System.currentTimeMillis();
 				ChessMove computerMove;

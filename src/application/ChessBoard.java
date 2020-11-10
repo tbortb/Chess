@@ -3,14 +3,18 @@ package application;
 /*Ideas to make it faster:
  * - Try to implement Feldmann's Young Brothers Wait Concept https://www.chessprogramming.org/Parallel_Search
  * -Cache results of getLegalMoves
+ * 		Cache seems to make it slower, because the evaluateFunction also caches values that are thrown away immediatly.
+ * 		Implement it in such a way, that the evaluate Method does not try to cache. And test against the two midgame cases
  * -Have specific order when checking possible moves, so that best moves come first, and alphabetapruning is applied more often*/
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import Model.LogContainer;
@@ -31,15 +35,17 @@ public class ChessBoard {
 	private final Set<ChessPiece> whitePieces = new HashSet<>();
 	private final Set<ChessPiece> blackPieces = new HashSet<>();
 	private BooleanProperty gameEndedProperty = new SimpleBooleanProperty(false);
+	private final ArrayDeque<Map<Integer, Set<Field>>> legalMoveLog = new ArrayDeque<>();
 
 	private boolean whiteTurn = true;
 	private Field selectedField;
-	private List<LogContainer> currentMoveLog = new ArrayList<>();
+	private List<LogContainer> currentMoveLogEntry = new ArrayList<>();
 	private boolean isPlayerGame = false;
 
 	public ChessBoard() {
 		this.isPlayerGame = true; // Needs to be true in the constructor, so the field shows the pieces with
 									// ImageView
+		this.legalMoveLog.addLast(new HashMap<Integer, Set<Field>>());
 		boolean fieldIsWhite;
 		boolean pieceIsWhite;
 		int col;
@@ -59,22 +65,22 @@ public class ChessBoard {
 			row = i % 8;
 
 			if (rookLacations.contains(i)) {
-				this.fields[col][row] = new Field(this, col, row, fieldIsWhite, new Rook(pieceIsWhite));
+				this.fields[col][row] = new Field(this, col, row, fieldIsWhite, new Rook(pieceIsWhite, i));
 				this.addToPlayerPiecesSet(this.fields[col][row].getPiece());
 			} else if (knightLacations.contains(i)) {
-				this.fields[col][row] = new Field(this, col, row, fieldIsWhite, new Knight(pieceIsWhite));
+				this.fields[col][row] = new Field(this, col, row, fieldIsWhite, new Knight(pieceIsWhite, i));
 				this.addToPlayerPiecesSet(this.fields[col][row].getPiece());
 			} else if (bishopLacations.contains(i)) {
-				this.fields[col][row] = new Field(this, col, row, fieldIsWhite, new Bishop(pieceIsWhite));
+				this.fields[col][row] = new Field(this, col, row, fieldIsWhite, new Bishop(pieceIsWhite, i));
 				this.addToPlayerPiecesSet(this.fields[col][row].getPiece());
 			} else if (queenLacations.contains(i)) {
-				this.fields[col][row] = new Field(this, col, row, fieldIsWhite, new Queen(pieceIsWhite));
+				this.fields[col][row] = new Field(this, col, row, fieldIsWhite, new Queen(pieceIsWhite, i));
 				this.addToPlayerPiecesSet(this.fields[col][row].getPiece());
 			} else if (kingLacations.contains(i)) {
-				this.fields[col][row] = new Field(this, col, row, fieldIsWhite, new King(pieceIsWhite));
+				this.fields[col][row] = new Field(this, col, row, fieldIsWhite, new King(pieceIsWhite, i));
 				this.addToPlayerPiecesSet(this.fields[col][row].getPiece());
 			} else if (pawnLacations.contains(i)) {
-				this.fields[col][row] = new Field(this, col, row, fieldIsWhite, new Pawn(pieceIsWhite));
+				this.fields[col][row] = new Field(this, col, row, fieldIsWhite, new Pawn(pieceIsWhite, i));
 				this.addToPlayerPiecesSet(this.fields[col][row].getPiece());
 			} else {
 				this.fields[col][row] = new Field(this, col, row, fieldIsWhite);
@@ -91,6 +97,7 @@ public class ChessBoard {
 		int col;
 		int row;
 		boolean fieldIsWhite;
+		this.legalMoveLog.addLast(new HashMap<Integer, Set<Field>>());
 
 		for (int i = 0; i < 64; i++) {
 			fieldIsWhite = (i + i / 8) % 2 == 0;
@@ -161,6 +168,18 @@ public class ChessBoard {
 
 	public Field getSelectedField() {
 		return this.selectedField;
+	}
+	
+	public Set<Field> getLegalMoveLog(Integer id){
+		return this.legalMoveLog.peekLast().get(id);
+	}
+	
+	public void addLegalMove(Integer id, Set<Field> legalMoves) {
+		this.legalMoveLog.peekLast().put(id, legalMoves);
+	}
+	
+	public void addLegalMoveLayer() {
+		this.legalMoveLog.addLast(new HashMap<Integer, Set<Field>>());
 	}
 
 	public void selectField(Field field) {
@@ -243,8 +262,8 @@ public class ChessBoard {
 	}
 
 	public void currentMoveToLog() {
-		this.log.addLast(this.currentMoveLog);
-		this.currentMoveLog = new ArrayList<>();
+		this.log.addLast(this.currentMoveLogEntry);
+		this.currentMoveLogEntry = new ArrayList<>();
 	}
 
 	public void writeCurrentMove(Field field){
@@ -253,7 +272,7 @@ public class ChessBoard {
 			LogContainer container =  new LogContainer(field.getCol(),
 					field.getRow(),
 					field.getPiece() == null ? null : piece.getClass().getConstructor(piece.getClass()).newInstance(piece));
-			this.currentMoveLog.add(container);
+			this.currentMoveLogEntry.add(container);
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -291,7 +310,7 @@ public class ChessBoard {
 			
 			currentField.setPiece(container.getPiece());
 		}
-
+		this.legalMoveLog.removeLast();
 		this.switchPlayer();
 	}
 }

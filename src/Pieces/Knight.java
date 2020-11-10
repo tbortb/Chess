@@ -9,8 +9,8 @@ public class Knight extends ChessPiece {
 	private static Image whiteImg = new Image(Knight.class.getResourceAsStream("../res/ChessPieces/WhiteHorse.png"));
 	private static Image blackImg = new Image(Knight.class.getResourceAsStream("../res/ChessPieces/BlackHorse.png"));
 	
-	public Knight(boolean isWhite) {
-		super(isWhite, 3);
+	public Knight(boolean isWhite, Integer id) {
+		super(isWhite, 3, id);
 	}
 	
 	public Knight(Knight other) {//CopyConstructor
@@ -23,7 +23,7 @@ public class Knight extends ChessPiece {
 	}
 
 	@Override
-	public Set<Field> getLegalMoves() {
+	public Set<Field> calcLegalMoves() {
 		Set<Field> legalMoves = this.checkLinearMoves(2, 1, 1);
 		legalMoves.addAll(this.checkLinearMoves(2, -1, 1));
 		legalMoves.addAll(this.checkLinearMoves(1, 2, 1));

@@ -85,7 +85,7 @@ public class Field extends Button {
 			// dem ersten klick
 			this.board.unselectField(this);
 			this.board.currentMoveToLog();
-
+			this.board.addLegalMoveLayer();
 			this.board.switchPlayer();
 		} else {
 			System.err.println("Piece can not move from: " + this.getBoard().getSelectedField().toString() + " to "
@@ -146,7 +146,7 @@ public class Field extends Button {
 			}
 
 			if (this.getRow() == (this.board.isWhiteTurn() ? 0 : 7)) {// Pawn on base line
-				Queen newQueen = new Queen(this.board.isWhiteTurn());
+				Queen newQueen = new Queen(this.board.isWhiteTurn(), (int)((Math.random() * 1_000_000)));
 				this.setPiece(newQueen);
 				this.board.addToPlayerPiecesSet(newQueen);
 				return;
