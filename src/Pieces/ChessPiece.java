@@ -40,7 +40,6 @@ public abstract class ChessPiece {
 			this.field.getBoard().addLegalMove(this.id, legalMoves);
 			return legalMoves;
 		}
-//		return legalMoves;
 	}
 
 	public boolean isLegalMove(Field destinationFiled) {
