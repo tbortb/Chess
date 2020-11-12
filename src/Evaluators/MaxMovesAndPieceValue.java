@@ -14,7 +14,7 @@ public class MaxMovesAndPieceValue implements ChessBoardEvaluator{
 			if ((piece instanceof King)) {
 				points += 200;
 			}else {
-				points += piece.getLegalMoves().size();	
+				points += piece.calcLegalMoves().size();	
 				points += piece.getValue() * 10;
 			}
 		}
@@ -22,7 +22,7 @@ public class MaxMovesAndPieceValue implements ChessBoardEvaluator{
 			if ((piece instanceof King)) {
 				points -= 200;
 			}else {
-				points -= piece.getLegalMoves().size();				
+				points -= piece.calcLegalMoves().size();				
 				points -= piece.getValue() * 10;
 			}
 		}

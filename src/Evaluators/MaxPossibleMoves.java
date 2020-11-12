@@ -14,14 +14,14 @@ public class MaxPossibleMoves implements ChessBoardEvaluator{
 			if ((piece instanceof King)) {
 				points += 200;
 			}else {
-				points += piece.getLegalMoves().size();				
+				points += piece.calcLegalMoves().size();				
 			}
 		}
 		for (ChessPiece piece : chessBoard.getBlackPieces()) {
 			if ((piece instanceof King)) {
 				points -= 200;
 			}else {
-				points -= piece.getLegalMoves().size();				
+				points -= piece.calcLegalMoves().size();				
 			}
 		}
 		return points;

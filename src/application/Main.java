@@ -1,11 +1,17 @@
 package application;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import Engines.AlphaBetaPrune;
+import Engines.IndirectRecursionPruneLocalMoveOrder;
 import Engines.AlphaBetaPruneMultiThread;
-import Engines.AlphaBetaPruneMultiThreadRootCom;
 import Engines.ChessEngine;
-import Engines.ChessMove;
+import Engines.GlobalABThreadingLocalMoveOrder;
+import Engines.IndirectRecursion;
+import Model.ChessMove;
 import Engines.MiniMaxEngine;
+import Engines.MiniMaxEngineMoveLog;
+import Engines.IndirectRecursionPrune;
 import Evaluators.MaxPossibleMoves;
 import Evaluators.PiecesAndCenter;
 import Pieces.ChessPiece;
@@ -22,7 +28,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-	private static final int searchDeepth = 3;
+	private static final int searchDeepth = 5;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -54,7 +60,7 @@ public class Main extends Application {
 		Button backButton = new Button("Ctrl + Z");
 		backButton.setOnAction(event -> chessBoard.setupPreviousBoardState());
 
-		ChessEngine engine = new MiniMaxEngine(new PiecesAndCenter(), new MaxPossibleMoves());
+		ChessEngine engine = new GlobalABThreadingLocalMoveOrder(new PiecesAndCenter(), new MaxPossibleMoves());
 		computerGameBtn.setOnAction(e -> {
 				final long startTime = System.currentTimeMillis();
 				ChessMove computerMove;
@@ -72,17 +78,19 @@ public class Main extends Application {
 						Platform.runLater(() -> computerGameBtn.fire());
 					}
 					
-				System.out.println(computerMove + " took " + String.valueOf(System.currentTimeMillis() - startTime)
+				System.out.println(computerMove.toShortString() + " took " + String.valueOf(System.currentTimeMillis() - startTime)
 						+ " milisecondss (" + engine.getEvaluatorCalls() + " evaluations)");
 		});
 
 		computerMoveBtn.setOnAction(e -> {
 			final long startTime = System.currentTimeMillis();
 			ChessMove computerMove = engine.computerMove(chessBoard, searchDeepth);
+			final long timeDiff = System.currentTimeMillis() - startTime;
+			final AtomicInteger evalsPerformed = engine.getEvaluatorCalls();
 			computerMove.getFrom().fire();
 			computerMove.getTo().fire();
-			System.out.println(computerMove + " took " + String.valueOf(System.currentTimeMillis() - startTime)
-					+ " milisecondss (" + engine.getEvaluatorCalls() + " evaluations)");
+			System.out.println(computerMove.toShortString() + " took " + String.valueOf(timeDiff)
+					+ " miliseconds (" + evalsPerformed + " evaluations, " + Math.round((evalsPerformed.get()/timeDiff)) + " movesPerMilli)");
 		});
 
 		hbox.getChildren().addAll(computerGameBtn, computerMoveBtn, backButton);

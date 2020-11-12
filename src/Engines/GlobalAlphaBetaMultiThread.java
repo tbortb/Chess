@@ -12,22 +12,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-
+import Model.ChessMove;
 import Evaluators.ChessBoardEvaluator;
 import application.ChessBoard;
 import application.Field;
 
-public class AlphaBetaPruneMultiThreadRootCom extends ChessEngine {
+public class GlobalAlphaBetaMultiThread extends ChessEngine {
 	// alpha = minimum value that a maximizing player is guaranteed to get
 	private volatile int globalAlpha;
 	// beta = maximum value that a minimizing player is guaranteed to get
 	private volatile int globalBeta;
 
-	public AlphaBetaPruneMultiThreadRootCom(ChessBoardEvaluator evaluator) {
+	public GlobalAlphaBetaMultiThread(ChessBoardEvaluator evaluator) {
 		super(evaluator);
 	}
 
-	public AlphaBetaPruneMultiThreadRootCom(ChessBoardEvaluator whiteEvaluator, ChessBoardEvaluator blackEvaluator) {
+	public GlobalAlphaBetaMultiThread(ChessBoardEvaluator whiteEvaluator, ChessBoardEvaluator blackEvaluator) {
 		super(whiteEvaluator, blackEvaluator);
 	}
 
@@ -39,7 +39,7 @@ public class AlphaBetaPruneMultiThreadRootCom extends ChessEngine {
 		this.globalBeta = Integer.MAX_VALUE;
 
 		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-		List<Future<ChessMove>> possibleMoveFutures = new ArrayList<>();
+		List<Future<ChessMove>> possibleMoveFutures = new ArrayList<>(64);
 
 		Field[] fromFields = chessBoard.getActivePlayerPieces().stream().map(piece -> piece.getField())
 				.toArray(Field[]::new);

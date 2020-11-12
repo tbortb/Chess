@@ -1,14 +1,25 @@
 MiniMax komplet erster zug depth 5:
-ChessMove [fromField=1-7, toField=2-5, value=-5] took 1018943 milisecondss (120735548 evaluations)
+ChessMove [fromField=1-7, toField=2-5, value=-5] took 1018943 milisecondss (120735548 evaluations) -> 118
+Nochmal mit MiniMax und logalMoveLog außer in evalPhase: //Das MoveLog scheint die Suche nicht zu verlangsamen
+ChessMove [fromField=1-7, toField=2-5, value=-5 took 942730 milisecondss (120735548 evaluations) -> 128
+Nochmal mit IndirectRecursion und localMoveLog:
+ChessMove [fromField=1-7, toField=2-5, value=-5] took 906131 miliseconds (120735548 evaluations, 133 movesPerMilli)
+IndirectRecursionPrune mit indirekter rekursion:
+ChessMove [fromField=1-7, toField=2-5, value=-5] took 14976 miliseconds (1774626 evaluations, 118 movesPerMilli) //Das war sogar noch ein schlechter Lauf
 Das selbe mit alphabeta prune:
-ChessMove [fromField=1-7, toField=2-5, value=-5] took 15638 milisecondss (1693870 evaluations)
+ChessMove [fromField=1-7, toField=2-5, value=-5] took 15638 milisecondss (1693870 evaluations) -> 108
+Nochmal mit AlphaBetaPruneLocalMoveOrder:
+ChessMove [fromField=1-7, toField=2-5, value=-5 took 19641 milisecondss (2366945 evaluations) -> 121
 Nochmal mit alphabetaprune und multithreading
-ChessMove [fromField=1-7, toField=2-5, value=-5] took 21372 milisecondss (3885310 evaluations)
+ChessMove [fromField=1-7, toField=2-5, value=-5] took 21372 milisecondss (3885310 evaluations) -> 182
+
 
 
 
 AlphaBeta erster zug depth 7:
-ChessMove [fromField=3-6, toField=3-5, value=-8] took 2000024 milisecondss (182093600 evaluations)
+ChessMove [fromField=3-6, toField=3-5, value=-8] took 2000024 milisecondss (18209s3600 evaluations)
+Nochmal mit AlphaBetaPruneLocalMoveOrder:
+ChessMove [fromField=1-6, toField=1-5, value=-8] took 1236963 milisecondss (146053283 evaluations)
 Das selbe mit multithreading:
 ChessMove [fromField=3-6, toField=3-5, value=-8] took 1830701 milisecondss (355515079 evaluations)
 alternativen: ChessMove [fromField=1-6, toField=1-5, value=-8], ChessMove [fromField=4-6, toField=4-5, value=-8], ChessMove [fromField=3-6, toField=3-5, value=-8]]
@@ -21,3 +32,30 @@ alternativen: ChessMove [fromField=1-6, toField=1-5, value=-8], ChessMove [fromF
 
 So. wie es momentan aussieht, ist die qualität der alphabeta parallel Engines gleichbleibend, aber die letzte, bei der immer auch das globale alpha bzw beta
 überprüft wird ist die schnellste.
+
+AlphaBetaPrune depth5 first 5 Moves:
+ChessMove [fromField=1-7, toField=2-5, value=-5] took 13399 miliseconds (1574406 evaluations, 117 movesPerMilli)
+ChessMove [fromField=4-1, toField=4-2, value=21] took 6214 miliseconds (778772 evaluations, 125 movesPerMilli)
+ChessMove [fromField=4-6, toField=4-4, value=-8] took 47275 miliseconds (5689039 evaluations, 120 movesPerMilli)
+ChessMove [fromField=3-0, toField=7-4, value=23] took 37116 miliseconds (4687889 evaluations, 126 movesPerMilli)
+ChessMove [fromField=6-6, toField=6-5, value=-8] took 107935 miliseconds (12191036 evaluations, 112 movesPerMilli)
+IndirectRecursionPrune:
+ChessMove [fromField=1-7, toField=2-5, value=-5] took 14630 miliseconds (1774626 evaluations, 121 movesPerMilli)
+ChessMove [fromField=4-1, toField=4-2, value=21] took 11123 miliseconds (1491596 evaluations, 134 movesPerMilli)
+ChessMove [fromField=4-6, toField=4-4, value=-8] took 28637 miliseconds (3535067 evaluations, 123 movesPerMilli)
+ChessMove [fromField=3-0, toField=7-4, value=23] took 28939 miliseconds (3734351 evaluations, 129 movesPerMilli)
+ChessMove [fromField=6-6, toField=6-5, value=-8] took 125592 miliseconds (14389333 evaluations, 114 movesPerMilli)
+Das selbe mit AlphaBetaPruneLocalMoveOrder:
+ChessMove [fromField=1-7, toField=2-5, value=-5] took 9579 miliseconds (999323 evaluations, 104 movesPerMilli)
+ChessMove [fromField=4-1, toField=4-2, value=21] took 1778 miliseconds (218886 evaluations, 123 movesPerMilli)
+ChessMove [fromField=4-6, toField=4-4, value=-8] took 20494 miliseconds (2377586 evaluations, 116 movesPerMilli)
+ChessMove [fromField=3-0, toField=5-2, value=23] took 8341 miliseconds (1018387 evaluations, 122 movesPerMilli)
+ChessMove [fromField=6-6, toField=6-5, value=-8] took 16527 miliseconds (1883641 evaluations, 113 movesPerMilli)
+Das selbe mit IndirectRecursionPruneLocalMoveOrder: 							//Seint als würde sich die indirekte Rekursion nicht lohnen
+ChessMove [fromField=1-7, toField=2-5, value=-5] took 8697 miliseconds (942584 evaluations, 108 movesPerMilli)
+ChessMove [fromField=4-1, toField=4-2, value=21] took 1808 miliseconds (218581 evaluations, 120 movesPerMilli)
+ChessMove [fromField=4-6, toField=4-4, value=-8] took 19283 miliseconds (2284130 evaluations, 118 movesPerMilli)
+ChessMove [fromField=3-0, toField=5-2, value=23] took 8122 miliseconds (1021521 evaluations, 125 movesPerMilli)
+ChessMove [fromField=6-6, toField=6-5, value=-8] took 16772 miliseconds (1920946 evaluations, 114 movesPerMilli)
+
+

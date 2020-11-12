@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-
+import Model.ChessMove;
 import Evaluators.ChessBoardEvaluator;
 import application.ChessBoard;
 import application.Field;
@@ -109,7 +109,7 @@ public class AlphaBetaPruneMultiThread extends ChessEngine {
 
 	private ChessMove alphaBeta(ChessBoard chessBoard, int depth, int alpha, int beta, Field[] fromFields) {
 
-		List<ChessMove> possibleMoves = new ArrayList<ChessMove>();
+		List<ChessMove> possibleMoves = new ArrayList<ChessMove>(64);
 
 //		System.out.println("depth" + depth + (chessBoard.isWhiteTurn() ? "White" : "Black") + "Pieces: "
 //				+ chessBoard.getActivePlayerPieces());

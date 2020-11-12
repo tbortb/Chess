@@ -6,6 +6,7 @@ import java.util.List;
 
 import Evaluators.ChessBoardEvaluator;
 import application.ChessBoard;
+import Model.ChessMove;
 import application.Field;
 
 public class AlphaBetaPrune extends ChessEngine {
@@ -29,7 +30,7 @@ public class AlphaBetaPrune extends ChessEngine {
 
 	private ChessMove alphaBeta(ChessBoard chessBoard, int depth, int alpha, int beta) {
 		
-		List<ChessMove> possibleMoves = new ArrayList<ChessMove>();
+		List<ChessMove> possibleMoves = new ArrayList<ChessMove>(64);
 
 		Field[] fromFields = chessBoard.getActivePlayerPieces()
 											.stream()

@@ -7,26 +7,26 @@ import Model.ChessMove;
 import Evaluators.ChessBoardEvaluator;
 import application.ChessBoard;
 import application.Field;
-import Model.ChessMove;
 
-public class MiniMaxEngine extends ChessEngine{
+public class MiniMaxEngineMoveLog extends ChessEngine{
 	
-	public MiniMaxEngine(ChessBoardEvaluator evaluator) {
+	public MiniMaxEngineMoveLog(ChessBoardEvaluator evaluator) {
 		super(evaluator);
 	}
 	
-	public MiniMaxEngine(ChessBoardEvaluator whiteEvaluator, ChessBoardEvaluator blackEvaluator) {
+	public MiniMaxEngineMoveLog(ChessBoardEvaluator whiteEvaluator, ChessBoardEvaluator blackEvaluator) {
 		super(whiteEvaluator, blackEvaluator);
 	}
 
 	@Override
 	public ChessMove computerMove(ChessBoard chessBoard, int depth) {
 		this.evaluateCalls.set(0);
-		this.useWhiteEval= chessBoard.isWhiteTurn(); 
-		return this.computerMove(chessBoard, depth, depth);
+		this.useWhiteEval= chessBoard.isWhiteTurn();
+//		List<ChessMove> returnedMoves = this.computerMove(chessBoard, depth, depth);
+		return this.computerMove(chessBoard, depth, depth).get(0);
 	}
 	
-	private ChessMove computerMove(ChessBoard chessBoard, int depth, int initialDepth) {
+	private List<ChessMove> computerMove(ChessBoard chessBoard, int depth, int initialDepth) {
 		
 		List<ChessMove> possibleMoves = new ArrayList<ChessMove>(64);
 		
@@ -44,14 +44,18 @@ public class MiniMaxEngine extends ChessEngine{
 				fromField.onClick(); //mouse click on chess piece's field
 				toField.onClick(); //Move chosen ChessPiece to a field
 				
+				List<ChessMove> returnChessMoves;
+				
 				if(depth == 0) {
 					possibleMoves.add(new ChessMove(fromField,
 							toField,
 							this.evaluatePosition(chessBoard)));
 				} else {
+					returnChessMoves = this.computerMove(chessBoard, depth - 1, initialDepth);
 					possibleMoves.add(new ChessMove(fromField,
 							toField,
-							this.computerMove(chessBoard, depth - 1, initialDepth).getValue()));
+							returnChessMoves.get(0).getValue(),
+							returnChessMoves));
 				}
 				
 				//Return to last move is necesary because all recursive playthroughs are played on the same chessboard!
@@ -60,11 +64,18 @@ public class MiniMaxEngine extends ChessEngine{
 			}
 		}
 		
+
 		Collections.sort(possibleMoves);
-
-//		System.gc();
-
-		return chessBoard.isWhiteTurn() ? possibleMoves.get(possibleMoves.size() - 1) : possibleMoves.get(0);
+		
+		if(chessBoard.isWhiteTurn()) {
+			Collections.reverse(possibleMoves);
+		}
+		return possibleMoves;
+		
+//		int interestingValue = chessBoard.isWhiteTurn() ?
+//				possibleMoves.get(possibleMoves.size() - 1).getValue() :
+//					possibleMoves.get(0).getValue();
+//		return possibleMoves.stream().filter(m -> m.getValue() == interestingValue).toArray(ChessMove[]::new);
 	}
 
 	

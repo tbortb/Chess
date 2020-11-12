@@ -1,6 +1,7 @@
 package application;
 
 /*Ideas to make it faster:
+ * -Apply a reasonable initial size of the possibleMoves in the used Engines (default is only 16)
  * - Try to implement Feldmann's Young Brothers Wait Concept https://www.chessprogramming.org/Parallel_Search
  * -Cache results of getLegalMoves
  * 		Cache seems to make it slower, because the evaluateFunction also caches values that are thrown away immediatly.

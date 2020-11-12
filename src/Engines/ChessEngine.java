@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import Evaluators.ChessBoardEvaluator;
 import application.ChessBoard;
+import Model.ChessMove;
 
 public abstract class ChessEngine implements ChessBoardEvaluator {
 	private ChessBoardEvaluator whiteEvaluator;
