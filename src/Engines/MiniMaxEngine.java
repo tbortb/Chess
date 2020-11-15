@@ -20,13 +20,13 @@ public class MiniMaxEngine extends ChessEngine{
 	}
 
 	@Override
-	public ChessMove computerMove(ChessBoard chessBoard, int depth) {
+	public List<ChessMove> computerMove(ChessBoard chessBoard, int depth) {
 		this.evaluateCalls.set(0);
 		this.useWhiteEval= chessBoard.isWhiteTurn(); 
 		return this.computerMove(chessBoard, depth, depth);
 	}
 	
-	private ChessMove computerMove(ChessBoard chessBoard, int depth, int initialDepth) {
+	private List<ChessMove> computerMove(ChessBoard chessBoard, int depth, int initialDepth) {
 		
 		List<ChessMove> possibleMoves = new ArrayList<ChessMove>(64);
 		
@@ -51,7 +51,7 @@ public class MiniMaxEngine extends ChessEngine{
 				} else {
 					possibleMoves.add(new ChessMove(fromField,
 							toField,
-							this.computerMove(chessBoard, depth - 1, initialDepth).getValue()));
+							this.computerMove(chessBoard, depth - 1, initialDepth).get(0).getValue()));
 				}
 				
 				//Return to last move is necesary because all recursive playthroughs are played on the same chessboard!
@@ -61,10 +61,12 @@ public class MiniMaxEngine extends ChessEngine{
 		}
 		
 		Collections.sort(possibleMoves);
-
+		if(chessBoard.isWhiteTurn()) {
+			Collections.reverse(possibleMoves);
+		}
 //		System.gc();
 
-		return chessBoard.isWhiteTurn() ? possibleMoves.get(possibleMoves.size() - 1) : possibleMoves.get(0);
+		return possibleMoves;
 	}
 
 	

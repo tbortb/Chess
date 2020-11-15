@@ -22,13 +22,13 @@ public class AlphaBetaPrune extends ChessEngine {
 	}
 
 	@Override
-	public ChessMove computerMove(ChessBoard chessBoard, int depth) {
+	public List<ChessMove> computerMove(ChessBoard chessBoard, int depth) {
 		this.evaluateCalls.set(0);
 		this.useWhiteEval = chessBoard.isWhiteTurn();
 		return this.alphaBeta(chessBoard, depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
 	}
 
-	private ChessMove alphaBeta(ChessBoard chessBoard, int depth, int alpha, int beta) {
+	private List<ChessMove> alphaBeta(ChessBoard chessBoard, int depth, int alpha, int beta) {
 		
 		List<ChessMove> possibleMoves = new ArrayList<ChessMove>(64);
 
@@ -65,7 +65,7 @@ public class AlphaBetaPrune extends ChessEngine {
 				} else {
 					possibleMoves.add(new ChessMove(fromField,
 									toField,
-									value = this.alphaBeta(chessBoard, depth - 1, alpha, beta).getValue()));
+									value = this.alphaBeta(chessBoard, depth - 1, alpha, beta).get(0).getValue()));
 				}
 
 				chessBoard.returnToLastMove();
@@ -89,8 +89,11 @@ public class AlphaBetaPrune extends ChessEngine {
 			}
 		}
 		Collections.sort(possibleMoves);
+		if (chessBoard.isWhiteTurn()) {
+			Collections.reverse(possibleMoves);
+		}
 //		System.gc();
-		return possibleMoves.size() == 0 ? null : chessBoard.isWhiteTurn() ? possibleMoves.get(possibleMoves.size() - 1) : possibleMoves.get(0);
+		return possibleMoves.size() == 0 ? null : possibleMoves;
 	}
 
 }

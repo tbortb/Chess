@@ -28,6 +28,10 @@ public class ChessMove implements Comparable<ChessMove> {
 	public List<ChessMove> getTree() {
 		return this.tree;
 	}
+	
+	public void setTree(List<ChessMove> newTree) {
+		this.tree = newTree;
+	}
 
 	public Field getFrom() {
 		return this.from;
@@ -54,7 +58,7 @@ public class ChessMove implements Comparable<ChessMove> {
 	public String toString() {
 		StringBuilder sb = new StringBuilder("{\"fromField\":\"" + this.from.getCol() + "-" + this.from.getRow()
 		+ "\", \"toField\":\"" + this.to.getCol() + "-" + this.to.getRow() + "\", \"value\":\"" 
-				+ this.value + "\", \"principalVariation\":");
+				+ this.value + "\", \"tree\":");
 		if (this.tree != null) {
 			sb.append(this.tree);
 		} else {

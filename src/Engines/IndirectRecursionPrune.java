@@ -25,7 +25,7 @@ public class IndirectRecursionPrune extends ChessEngine {
 	}
 
 	@Override
-	public ChessMove computerMove(ChessBoard chessBoard, int depth) {
+	public List<ChessMove> computerMove(ChessBoard chessBoard, int depth) {
 		this.evaluateCalls.set(0);
 		this.useWhiteEval = chessBoard.isWhiteTurn();
 		if (chessBoard.isWhiteTurn()) {
@@ -35,7 +35,7 @@ public class IndirectRecursionPrune extends ChessEngine {
 		}
 	}
 
-	private ChessMove alphaBetaMax(ChessBoard chessBoard, int depth, int alpha, int beta) {
+	private List<ChessMove> alphaBetaMax(ChessBoard chessBoard, int depth, int alpha, int beta) {
 
 		List<ChessMove> possibleMoves = new ArrayList<ChessMove>(64);
 
@@ -66,7 +66,7 @@ public class IndirectRecursionPrune extends ChessEngine {
 					toField.onClick(); // Move chosen ChessPiece to a field
 					int value; // Value of newly discovered move
 					possibleMoves.add(new ChessMove(fromField, toField,
-							value = this.alphaBetaMin(chessBoard, depth - 1, alpha, beta).getValue()));
+							value = this.alphaBetaMin(chessBoard, depth - 1, alpha, beta).get(0).getValue()));
 
 					chessBoard.returnToLastMove();
 
@@ -81,10 +81,11 @@ public class IndirectRecursionPrune extends ChessEngine {
 			}
 		}
 		Collections.sort(possibleMoves);
-		return possibleMoves.get(possibleMoves.size() - 1);
+		Collections.reverse(possibleMoves);
+		return possibleMoves;
 	}
 	
-	private ChessMove alphaBetaMin(ChessBoard chessBoard, int depth, int alpha, int beta) {
+	private List<ChessMove> alphaBetaMin(ChessBoard chessBoard, int depth, int alpha, int beta) {
 
 		List<ChessMove> possibleMoves = new ArrayList<ChessMove>(64);
 
@@ -115,7 +116,7 @@ public class IndirectRecursionPrune extends ChessEngine {
 					toField.onClick(); // Move chosen ChessPiece to a field
 					int value; // Value of newly discovered move
 					possibleMoves.add(new ChessMove(fromField, toField,
-							value = this.alphaBetaMax(chessBoard, depth - 1, alpha, beta).getValue()));
+							value = this.alphaBetaMax(chessBoard, depth - 1, alpha, beta).get(0).getValue()));
 
 					chessBoard.returnToLastMove();
 
@@ -130,7 +131,7 @@ public class IndirectRecursionPrune extends ChessEngine {
 			}
 		}
 		Collections.sort(possibleMoves);
-		return possibleMoves.get(0);
+		return possibleMoves;
 	}
 
 }

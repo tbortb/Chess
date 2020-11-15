@@ -21,10 +21,10 @@ public class AlphaBetaPruneLocalMoveOrder extends ChessEngine {
 	}
 
 	@Override
-	public ChessMove computerMove(ChessBoard chessBoard, int depth) {
+	public List<ChessMove> computerMove(ChessBoard chessBoard, int depth) {
 		this.evaluateCalls.set(0);
 		this.useWhiteEval = chessBoard.isWhiteTurn();
-		return this.alphaBeta(chessBoard, depth, Integer.MIN_VALUE, Integer.MAX_VALUE).get(0);
+		return this.alphaBeta(chessBoard, depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
 	}
 
 	private List<ChessMove> alphaBeta(ChessBoard chessBoard, int depth, int alpha, int beta) {

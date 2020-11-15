@@ -19,11 +19,11 @@ public class MiniMaxEngineMoveLog extends ChessEngine{
 	}
 
 	@Override
-	public ChessMove computerMove(ChessBoard chessBoard, int depth) {
+	public List<ChessMove> computerMove(ChessBoard chessBoard, int depth) {
 		this.evaluateCalls.set(0);
 		this.useWhiteEval= chessBoard.isWhiteTurn();
 //		List<ChessMove> returnedMoves = this.computerMove(chessBoard, depth, depth);
-		return this.computerMove(chessBoard, depth, depth).get(0);
+		return this.computerMove(chessBoard, depth, depth);
 	}
 	
 	private List<ChessMove> computerMove(ChessBoard chessBoard, int depth, int initialDepth) {
@@ -64,7 +64,6 @@ public class MiniMaxEngineMoveLog extends ChessEngine{
 			}
 		}
 		
-
 		Collections.sort(possibleMoves);
 		
 		if(chessBoard.isWhiteTurn()) {

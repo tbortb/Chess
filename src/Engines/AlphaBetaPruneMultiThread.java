@@ -26,7 +26,7 @@ public class AlphaBetaPruneMultiThread extends ChessEngine {
 	}
 
 	@Override
-	public ChessMove computerMove(ChessBoard chessBoard, int depth) {
+	public List<ChessMove> computerMove(ChessBoard chessBoard, int depth) {
 		this.evaluateCalls.set(0);
 		this.useWhiteEval = chessBoard.isWhiteTurn();
 
@@ -93,10 +93,11 @@ public class AlphaBetaPruneMultiThread extends ChessEngine {
 
 		executor.shutdown();
 		Collections.sort(possibleMoves);
-		System.out.println("ThisIsit:" + possibleMoves);
+		if (chessBoard.isWhiteTurn()) {
+			Collections.reverse(possibleMoves);
+		}
 //		System.gc();
-		return possibleMoves.size() == 0 ? null
-				: chessBoard.isWhiteTurn() ? possibleMoves.get(possibleMoves.size() - 1) : possibleMoves.get(0);
+		return possibleMoves.size() == 0 ? null : possibleMoves;
 	}
 
 	private ChessMove alphaBeta(ChessBoard chessBoard, int depth, int alpha, int beta) {

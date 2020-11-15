@@ -1,5 +1,6 @@
 package Engines;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import Evaluators.ChessBoardEvaluator;
@@ -7,8 +8,8 @@ import application.ChessBoard;
 import Model.ChessMove;
 
 public abstract class ChessEngine implements ChessBoardEvaluator {
-	private ChessBoardEvaluator whiteEvaluator;
-	private ChessBoardEvaluator blackEvaluator;
+	protected ChessBoardEvaluator whiteEvaluator;
+	protected ChessBoardEvaluator blackEvaluator;
 	protected volatile AtomicInteger evaluateCalls = new AtomicInteger(0);
 	protected boolean useWhiteEval = true;//default to true, in case the subclass does not set it
 	
@@ -21,7 +22,7 @@ public abstract class ChessEngine implements ChessBoardEvaluator {
 		this.blackEvaluator = blackEvaluator;
 	}
 	
-	public abstract ChessMove computerMove(ChessBoard chessBoard, int deepth);
+	public abstract List<ChessMove> computerMove(ChessBoard chessBoard, int deepth);
 	
 	@Override
 	public int evaluatePosition(ChessBoard chessBoard) {

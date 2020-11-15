@@ -31,7 +31,7 @@ public class GlobalABThreadingLocalMoveOrder extends ChessEngine {
 	}
 
 	@Override
-	public ChessMove computerMove(ChessBoard chessBoard, int depth) {
+	public List<ChessMove> computerMove(ChessBoard chessBoard, int depth) {
 		this.evaluateCalls.set(0);
 		this.useWhiteEval = chessBoard.isWhiteTurn();
 		this.globalAlpha = Integer.MIN_VALUE;
@@ -102,8 +102,11 @@ public class GlobalABThreadingLocalMoveOrder extends ChessEngine {
 
 		executor.shutdown();
 		Collections.sort(possibleMoves);
+		if(chessBoard.isWhiteTurn()) {
+			Collections.reverse(possibleMoves);
+		}
 //		System.gc();
-		return chessBoard.isWhiteTurn() ? possibleMoves.get(possibleMoves.size() - 1) : possibleMoves.get(0);
+		return possibleMoves;
 	}
 
 	private List<ChessMove> alphaBeta(ChessBoard chessBoard, int depth, int alpha, int beta,

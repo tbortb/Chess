@@ -24,7 +24,7 @@ public class IndirectRecursion extends ChessEngine {
 	}
 
 	@Override
-	public ChessMove computerMove(ChessBoard chessBoard, int depth) {
+	public List<ChessMove> computerMove(ChessBoard chessBoard, int depth) {
 		this.evaluateCalls.set(0);
 		this.useWhiteEval = chessBoard.isWhiteTurn();
 		if (chessBoard.isWhiteTurn()) {
@@ -34,7 +34,7 @@ public class IndirectRecursion extends ChessEngine {
 		}
 	}
 
-	private ChessMove maximizer(ChessBoard chessBoard, int depth, int alpha, int beta) {
+	private List<ChessMove> maximizer(ChessBoard chessBoard, int depth, int alpha, int beta) {
 
 		List<ChessMove> possibleMoves = new ArrayList<ChessMove>();
 
@@ -57,17 +57,18 @@ public class IndirectRecursion extends ChessEngine {
 					fromField.onClick(); // mouse click on chess piece's field
 					toField.onClick(); // Move chosen ChessPiece to a field
 					possibleMoves.add(new ChessMove(fromField, toField,
-							this.minimizer(chessBoard, depth - 1, alpha, beta).getValue()));
+							this.minimizer(chessBoard, depth - 1, alpha, beta).get(0).getValue()));
 
 					chessBoard.returnToLastMove();
 				}
 			}
 		}
 		Collections.sort(possibleMoves);
-		return possibleMoves.get(possibleMoves.size() - 1);
+		Collections.reverse(possibleMoves);
+		return possibleMoves;
 	}
 	
-	private ChessMove minimizer(ChessBoard chessBoard, int depth, int alpha, int beta) {
+	private List<ChessMove> minimizer(ChessBoard chessBoard, int depth, int alpha, int beta) {
 
 		List<ChessMove> possibleMoves = new ArrayList<ChessMove>();
 
@@ -89,14 +90,14 @@ public class IndirectRecursion extends ChessEngine {
 					fromField.onClick(); // mouse click on chess piece's field
 					toField.onClick(); // Move chosen ChessPiece to a field
 					possibleMoves.add(new ChessMove(fromField, toField,
-							this.maximizer(chessBoard, depth - 1, alpha, beta).getValue()));
+							this.maximizer(chessBoard, depth - 1, alpha, beta).get(0).getValue()));
 
 					chessBoard.returnToLastMove();
 				}
 			}
 		}
 		Collections.sort(possibleMoves);
-		return possibleMoves.get(0);
+		return possibleMoves;
 	}
 
 }

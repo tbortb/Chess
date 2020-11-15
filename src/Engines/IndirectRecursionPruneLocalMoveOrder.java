@@ -21,12 +21,12 @@ public class IndirectRecursionPruneLocalMoveOrder extends ChessEngine {
 	}
 
 	@Override
-	public ChessMove computerMove(ChessBoard chessBoard, int depth) {
+	public List<ChessMove> computerMove(ChessBoard chessBoard, int depth) {
 		this.evaluateCalls.set(0);
 		this.useWhiteEval = chessBoard.isWhiteTurn();
 		return chessBoard.isWhiteTurn() ? 
-				this.maximizer(chessBoard, depth, Integer.MIN_VALUE, Integer.MAX_VALUE).get(0) :
-				this.minimizer(chessBoard, depth, Integer.MIN_VALUE, Integer.MAX_VALUE).get(0);
+				this.maximizer(chessBoard, depth, Integer.MIN_VALUE, Integer.MAX_VALUE) :
+				this.minimizer(chessBoard, depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
 	}
 
 	private List<ChessMove> maximizer(ChessBoard chessBoard, int depth, int alpha, int beta) {

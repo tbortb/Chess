@@ -3,10 +3,13 @@ package application;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import Engines.AlphaBetaPrune;
+import Engines.AlphaBetaPruneLocalMoveOrder;
+import Engines.AlphaBetaPruneLocalMoveOrderMoveLog;
 import Engines.IndirectRecursionPruneLocalMoveOrder;
 import Engines.AlphaBetaPruneMultiThread;
 import Engines.ChessEngine;
 import Engines.GlobalABThreadingLocalMoveOrder;
+import Engines.GlobalABThreadingLocalMoveOrderMoveLog;
 import Engines.IndirectRecursion;
 import Model.ChessMove;
 import Engines.MiniMaxEngine;
@@ -14,6 +17,7 @@ import Engines.MiniMaxEngineMoveLog;
 import Engines.IndirectRecursionPrune;
 import Evaluators.MaxPossibleMoves;
 import Evaluators.PiecesAndCenter;
+import Evaluators.PiecesCenterAndPawns;
 import Pieces.ChessPiece;
 import Pieces.King;
 import javafx.application.Application;
@@ -60,12 +64,12 @@ public class Main extends Application {
 		Button backButton = new Button("Ctrl + Z");
 		backButton.setOnAction(event -> chessBoard.setupPreviousBoardState());
 
-		ChessEngine engine = new GlobalABThreadingLocalMoveOrder(new PiecesAndCenter(), new MaxPossibleMoves());
+		ChessEngine engine = new GlobalABThreadingLocalMoveOrderMoveLog(new PiecesAndCenter(), new MaxPossibleMoves());
 		computerGameBtn.setOnAction(e -> {
 				final long startTime = System.currentTimeMillis();
 				ChessMove computerMove;
 				try {					
-				computerMove = engine.computerMove(chessBoard, searchDeepth);
+				computerMove = engine.computerMove(chessBoard, searchDeepth).get(0);
 				}catch (RuntimeException ex) {
 					ex.printStackTrace();
 					System.out.println("Log: " + chessBoard.getLog());
@@ -84,7 +88,7 @@ public class Main extends Application {
 
 		computerMoveBtn.setOnAction(e -> {
 			final long startTime = System.currentTimeMillis();
-			ChessMove computerMove = engine.computerMove(chessBoard, searchDeepth);
+			ChessMove computerMove = engine.computerMove(chessBoard, searchDeepth).get(0);
 			final long timeDiff = System.currentTimeMillis() - startTime;
 			final AtomicInteger evalsPerformed = engine.getEvaluatorCalls();
 			computerMove.getFrom().fire();

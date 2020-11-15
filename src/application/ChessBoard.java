@@ -286,11 +286,10 @@ public class ChessBoard {
 	}
 
 	public void returnToLastMove() {
-//		if (this.selectedField != null) {
-//			this.selectedField.onClick();//Deselect
-//			System.err.println("Selected field automatically unselected");
-//		}
-//		System.out.println("returnToLastMove, Logsize: " + this.log.size());
+		if (this.selectedField != null) {
+			this.selectedField.onClick();//Deselect
+			System.err.println("Selected field automatically unselected");
+		}
 		if (this.log.size() == 0) {
 
 			System.err.println("Log is empty! You can not go further back");
