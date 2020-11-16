@@ -216,4 +216,15 @@ public class Field extends Button {
 		return "Field [col=" + this.col + ", row=" + this.row + ", piece=" + (this.piece == null ? "null"
 				: this.piece.getClass().getSimpleName() + ", isWhite=" + this.piece.isWhite()) + "]";
 	}
+
+	//Did not want to override equals() because it accepts Object, not only Field
+	public boolean hasSamePositionAs(Field other) {
+		if (col != other.getCol())
+			return false;
+		if (row != other.getRow())
+			return false;
+		return true;
+	}
+	
+	
 }

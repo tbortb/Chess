@@ -1,5 +1,8 @@
 package Engines;
-
+/**
+ * Probably one of the problems is that the field that is used for the onClick method can be a field
+ * on a copied board, not on the original one
+ */
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -48,8 +51,6 @@ public class GlobalABThreadingLocalMoveOrderMoveLog extends ChessEngine {
 		this.globalBeta = Integer.MAX_VALUE;
 		
 		
-		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-		List<Future<ChessMove>> possibleMoveFutures = new ArrayList<>(64);		
 		
 		List<ChessMove> possibleMoves;
 		int lastInvokation;
@@ -80,6 +81,8 @@ public class GlobalABThreadingLocalMoveOrderMoveLog extends ChessEngine {
 		if(lastTree != null &&
 				(chessBoard.getLogSize() > lastInvokation) &&
 				(chessBoard.getLogSize() - lastInvokation) < (depth - 1)) {
+
+			
 			while(chessBoard.getLogSize() > lastInvokation) {
 				//Because we are removing the last elements from the chessboard log, we need to add them later on!
 				intermediateLog.addLast(chessBoard.getLog().pollLast());
@@ -133,7 +136,8 @@ public class GlobalABThreadingLocalMoveOrderMoveLog extends ChessEngine {
 				//set lastTree to the relevant part of the previous tree
 				//Last tree has to exist, if it does not, it is an error in programming
 				for (ChessMove cm : lastTree) {
-					if((cm.getFrom() == searchFromField) && (cm.getTo() == searchToField)) {
+					if((cm.getFrom().hasSamePositionAs(searchFromField)) &&
+							(cm.getTo().hasSamePositionAs(searchToField))) {
 						lastTree = cm.getTree();
 						break;
 					}
@@ -143,9 +147,17 @@ public class GlobalABThreadingLocalMoveOrderMoveLog extends ChessEngine {
 				//repeat these steps
 			}
 			
+			
 			//Now that we have identified the relevant game tree, we can call the alphabeta function with it
 			//Using multithreading
+			ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+			List<Future<ChessMove>> possibleMoveFutures = new ArrayList<>(64);		
+
 			for (ChessMove playMove : lastTree) {
+				//Ensure that the returned fields are on the original ChessBoard
+				playMove.setFrom(chessBoard.getFields()[playMove.getFrom().getCol()][playMove.getFrom().getRow()]);
+				playMove.setTo(chessBoard.getFields()[playMove.getTo().getCol()][playMove.getTo().getRow()]);
+				
 				playMove.getFrom().onClick();
 				playMove.getTo().onClick();
 				
@@ -198,6 +210,11 @@ public class GlobalABThreadingLocalMoveOrderMoveLog extends ChessEngine {
 			executor.shutdown();
 			
 		
+			Collections.sort(possibleMoves);
+			//Check if the reordering is really necessary, or does any harm
+			if(chessBoard.isWhiteTurn()) {
+				Collections.reverse(possibleMoves);
+			}
 		
 		}else {
 			//Fall back to the GlobalABThreadingLocalMoveOrder engine, becuase it is the same without moveLog
@@ -206,10 +223,10 @@ public class GlobalABThreadingLocalMoveOrderMoveLog extends ChessEngine {
 		}
 		
 
-		//Flush JSON to file (costs approx 3 sec per invokation)
+		//Debugging: Flush JSON to file (costs approx 3 sec per invokation)
 //		try(BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\Users\\Thies\\Desktop\\Delete\\" 
 //				 + String.valueOf(System.currentTimeMillis()) + ".json"))){
-//			writer.append(output.toString());
+//			writer.append(possibleMoves.toString());
 //		} catch (IOException e) {
 //			e.printStackTrace();
 //		}
@@ -222,13 +239,7 @@ public class GlobalABThreadingLocalMoveOrderMoveLog extends ChessEngine {
 			this.lastBlackInvokation = chessBoard.getLogSize();
 			this.lastBlackTree = possibleMoves;						
 		}
-		
-		
-		//Check if the reordering is really necessary, or does any harm
-		if(chessBoard.isWhiteTurn()) {
-			Collections.reverse(possibleMoves);
-		}
-		
+
 		return possibleMoves;
 	}
 
@@ -341,12 +352,13 @@ public class GlobalABThreadingLocalMoveOrderMoveLog extends ChessEngine {
 			return this.alphaBeta(chessBoard, depth, alpha, beta, globalPlayerIsMaximizing);
 		} else {
 			//Find new values and trees for the orderedCalcMoves
-			//For this to work, it is important, that the list is complete
+			//For this to work, it is important, that the list of orderedCalcMoves is complete
 
 			tryFields: for (ChessMove move : orderedCalcMoves) {
-				move.getFrom().onClick(); // mouse click on chess piece's field
-				move.getTo().onClick(); // Move chosen ChessPiece to a field
-
+				//Ensure that the moves are done on the right chessboard
+				chessBoard.getFields()[move.getFrom().getCol()][move.getFrom().getRow()].onClick();
+				chessBoard.getFields()[move.getTo().getCol()][move.getTo().getRow()].onClick();
+				
 				//This is never at depth 0, because the lastTree can not be bigger then the current searchdepth
 				move.setTree(this.alphaBetaWithLog(chessBoard, depth - 1, alpha, beta, globalPlayerIsMaximizing, move.getTree()));
 				int value = move.getTree().get(0).getValue();

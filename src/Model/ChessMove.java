@@ -36,9 +36,17 @@ public class ChessMove implements Comparable<ChessMove> {
 	public Field getFrom() {
 		return this.from;
 	}
+	
+	public void setFrom(Field newFrom) {
+		this.from = newFrom;
+	}
 
 	public Field getTo() {
 		return this.to;
+	}
+	
+	public void setTo(Field newTo) {
+		this.to = newTo;
 	}
 
 	public int getValue() {
@@ -72,6 +80,16 @@ public class ChessMove implements Comparable<ChessMove> {
 	public String toShortString() {
 		return "ChessMove [fromField=" + this.from.getCol() + "-" + this.from.getRow()
 				+ ", toField=" + this.to.getCol() + "-" + this.to.getRow() + ", value=" + this.value + "]"; 
+	}
+	
+	public boolean hasSamePositionsAs(ChessMove other) {
+		if(!this.from.hasSamePositionAs(other.getFrom())) {
+			return false;
+		}
+		if(!this.to.hasSamePositionAs(other.getTo())) {
+			return false;
+		}
+		return true;
 	}
 
 }

@@ -32,7 +32,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-	private static final int searchDeepth = 5;
+	private static final int searchDeepth = 7;
 
 	@Override
 	public void start(Stage primaryStage) {

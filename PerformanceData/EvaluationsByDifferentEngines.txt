@@ -65,5 +65,17 @@ ChessMove [fromField=4-1, toField=4-2, value=21] took 1900 miliseconds (218886 e
 ChessMove [fromField=4-6, toField=4-4, value=-8] took 10813 miliseconds (1160322 evaluations, 107 movesPerMilli)
 ChessMove [fromField=3-0, toField=7-4, value=23] took 6701 miliseconds (795296 evaluations, 118 movesPerMilli)
 ChessMove [fromField=6-6, toField=6-5, value=-8] took 6510 miliseconds (648279 evaluations, 99 movesPerMilli)
+Das selbe mit GlobalABThreadingLocalMoveOrderMoveLog:
+ChessMove [fromField=1-7, toField=2-5, value=-5] took 6730 miliseconds (0 evaluations, 0 movesPerMilli)
+ChessMove [fromField=4-1, toField=4-2, value=21] took 2187 miliseconds (0 evaluations, 0 movesPerMilli)
+ChessMove [fromField=4-6, toField=4-4, value=-8] took 10926 miliseconds (2039245 evaluations, 186 movesPerMilli)
+ChessMove [fromField=3-0, toField=7-4, value=23] took 6227 miliseconds (1164787 evaluations, 187 movesPerMilli)
+ChessMove [fromField=6-6, toField=6-5, value=-8] took 5423 miliseconds (1163075 evaluations, 214 movesPerMilli)
+Das selbe mit GlobalABThreadingLocalMoveOrder:
+ChessMove [fromField=1-7, toField=2-5, value=-5] took 7599 miliseconds (1312438 evaluations, 172 movesPerMilli)
+ChessMove [fromField=4-1, toField=4-2, value=21] took 1571 miliseconds (298674 evaluations, 190 movesPerMilli)
+ChessMove [fromField=4-6, toField=4-4, value=-8] took 9387 miliseconds (1905765 evaluations, 203 movesPerMilli)
+ChessMove [fromField=3-0, toField=5-2, value=23] took 4711 miliseconds (1069849 evaluations, 227 movesPerMilli)
+ChessMove [fromField=6-6, toField=6-5, value=-8] took 12360 miliseconds (2592516 evaluations, 209 movesPerMilli)
 
 

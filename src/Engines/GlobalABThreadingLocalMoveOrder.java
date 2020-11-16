@@ -85,7 +85,8 @@ public class GlobalABThreadingLocalMoveOrder extends ChessEngine {
 				
 				return new ChessMove(boardComparator.getFromFieldBeforeBoardState(),
 						boardComparator.getToFieldBeforeBoardState(),
-						moves.get(0).getValue());
+						moves.get(0).getValue(),
+						moves);
 			}));
 		}
 
@@ -155,11 +156,13 @@ public class GlobalABThreadingLocalMoveOrder extends ChessEngine {
 				move.getFrom().onClick(); // mouse click on chess piece's field
 				move.getTo().onClick(); // Move chosen ChessPiece to a field
 
-				int value = this.alphaBeta(chessBoard,
+				List<ChessMove> returnedMoves = this.alphaBeta(chessBoard,
 						depth - 1,
 						alpha,
 						beta,
-						globalPlayerIsMaximizing).get(0).getValue();
+						globalPlayerIsMaximizing);
+				
+				int value = returnedMoves.get(0).getValue();
 
 				//Das könnte zu Schwierigkeiten führen, weil hier, wenn die Referenz aus possibleMoves einfach
 				//einen anderen Wert bekommt, kann es bei Pruning von tryFields sein, dass der nicht 
@@ -167,6 +170,7 @@ public class GlobalABThreadingLocalMoveOrder extends ChessEngine {
 				//als die bisher tatsächlich rekursiv gefundenen Züge. Damit würde vielleicht ein zu guter Zug
 				//an der Stelle possibleMoves.get(0) zuückgegeben!
 				move.setValue(value);
+				move.setTree(returnedMoves);
 
 				chessBoard.returnToLastMove();
 
